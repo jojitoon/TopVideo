@@ -1,4 +1,4 @@
 /release-builds
-/node-modules
+/node_modules
 .DS_Store
-yarn-lock
+yarn.lock

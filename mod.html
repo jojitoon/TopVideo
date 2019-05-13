@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="./master.css" />
+  </head>
+  <body style="overflow: hidden;">
+    <div style=" display: flex; flex-direction: column;height: 90vh">
+      <div style="flex: 1">
+        <div class="top">
+          <h3>Top Video</h3>
+          <span class="close" onclick="toggle()">x</span>
+        </div>
+        <center>
+          <button id="switch" class="btn switchTop" onclick="switchTop()">
+            Switch Top Mode
+          </button>
+        </center>
+      </div>
+      <div id="quit">
+        <Button onclick="quit()">Quit</Button>
+      </div>
+    </div>
+    <script src="mod.js"></script>
+  </body>
+</html>

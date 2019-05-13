@@ -1,0 +1,135 @@
+* {
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  outline: none;
+}
+body {
+  width: 95%;
+  padding: 0;
+  background: #2f3437;
+}
+#box {
+  background: #2f3437;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 225px);
+  grid-gap: 1.5rem;
+}
+.btn {
+  padding: 20px;
+  color: #fff;
+  font-size: 20px;
+  background: #eee;
+  font-weight: bold;
+  border-radius: 5px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background-color: #000;
+}
+
+.btn-youtube {
+  background: #cc0000;
+}
+.btn-xpause {
+  background: #ccc;
+}
+
+.btn-vimeo {
+  background: #5077a6;
+}
+
+.btn-netflix {
+  background: #e50914;
+}
+.btn-plural {
+  background: #f96816;
+}
+.btn-tree {
+  background: #5fcf80;
+}
+
+.btn-fz {
+  background: #5f6acf;
+}
+
+.btn-facebook {
+  background: #4267b2;
+}
+.btn-twitter {
+  background: #1da1f2;
+}
+.switchTop {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #2782d7;
+  margin: 5px auto;
+}
+.switchTop:hover {
+  background: #55a1e7;
+}
+
+h3 {
+  color: white;
+  margin: 0;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 5px;
+  margin-bottom: 10px;
+}
+
+.close {
+  color: white;
+  margin: 2px 20px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.close:hover {
+  transform: scale(1.2);
+}
+
+#status p {
+  background: #ee4d4d;
+  padding: 10px;
+  margin: 10px 0;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  animation: fade 1s linear;
+}
+
+#quit {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#quit button {
+  color: white;
+  background: #e7535a;
+  border-radius: 5px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+#quit button:hover {
+  background: #e50914;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
