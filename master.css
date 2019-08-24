@@ -133,3 +133,44 @@ h3 {
     opacity: 1;
   }
 }
+
+.input {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+  margin: 5px auto;
+  padding: 5px;
+}
+
+.input label {
+  margin: 5px 0;
+}
+.input input {
+  margin: 5px 0;
+  font-size: 12px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+}
+.input select {
+  margin: 5px 0;
+  font-size: 14px;
+  height: 30px;
+  border: none;
+  border-radius: 5px;
+}
+
+.input button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #2782d7;
+  color: white;
+  margin: 5px auto;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+.input button:hover {
+  background: #55a1e7;
+}

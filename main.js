@@ -18,6 +18,7 @@ let win;
 let id;
 let tray;
 let modal;
+let addUrl;
 let icon = path.join(__dirname, "topl.png");
 
 if (!isDev) {
@@ -67,6 +68,11 @@ const modalUrl = url.format({
   protocol: "file:",
   slashes: true
 });
+const addSiteUrl = url.format({
+  pathname: path.join(__dirname, "addUrl.html"),
+  protocol: "file:",
+  slashes: true
+});
 
 function createModal() {
   modal = new BrowserWindow({
@@ -90,6 +96,18 @@ const toggleWindow = () => {
   }
 };
 
+const toggleAddSite = () => {
+  if (addUrl.isVisible()) {
+    addUrl.hide();
+  } else {
+    showAddUrl();
+  }
+};
+
+const showAddUrl = () => {
+  addUrl.show();
+  addUrl.focus();
+};
 const showWindow = () => {
   const trayPos = tray.getBounds();
   const windowPos = modal.getBounds();
@@ -128,6 +146,20 @@ function createWindow() {
       nodeIntegration: true
     }
   });
+  addUrl = new BrowserWindow({
+    width: 400,
+    height: 400,
+    show: false,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    parent: win,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  addUrl.loadURL(addSiteUrl);
+
   app.dock.hide();
   win.setAlwaysOnTop(true, "floating");
   win.setVisibleOnAllWorkspaces(true);
@@ -136,6 +168,7 @@ function createWindow() {
   const mainMenu = Menu.buildFromTemplate(mainMenuTemp);
   Menu.setApplicationMenu(mainMenu);
   win.openDevTools({ mode: "detach" });
+  addUrl.openDevTools({ mode: "detach" });
   win.loadURL(htmlUrl);
   win.webContents.on("new-window", function(e, url) {
     e.preventDefault();
@@ -192,6 +225,9 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+const populateIt = data => {
+  addUrl.webContents.send("populate", data);
+};
 
 ipcMain.on("switch-top", e => {
   e.reply("notify", goFull());
@@ -199,6 +235,13 @@ ipcMain.on("switch-top", e => {
 ipcMain.on("toggle", e => {
   toggleWindow();
 });
+ipcMain.on("add-url", e => {
+  toggleAddSite();
+});
+// ipcMain.on("addedUrl", (e, data) => {
+//   populateIt(data);
+//   toggleAddSite();
+// });
 ipcMain.on("quit", e => {
   powerSaveBlocker.stop(id);
   app.quit();
@@ -220,6 +263,13 @@ const mainMenuTemp = [
         click() {
           win.loadURL(htmlUrl);
           win.setTitle("Top Video");
+        }
+      },
+      {
+        label: "Add Url",
+        accelerator: process.platform === "darwin" ? "Command+N" : "Ctrl+N",
+        click() {
+          toggleAddSite();
         }
       },
       {

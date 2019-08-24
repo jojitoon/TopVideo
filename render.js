@@ -1,6 +1,8 @@
-const { remote } = require("electron");
-const storage = require("electron-json-storage");
-
+const { remote, ipcRenderer } = require("electron");
+// const storage = require("electron-json-storage");
+const Store = require("electron-store");
+const store = new Store();
+const userSites = store.get("sites");
 let sites = [
   {
     class: "youtube",
@@ -64,25 +66,14 @@ let sites = [
   }
 ];
 
-storage.has("foobar", (err, hasKey) => {
-  if (err) return console.log(err);
-
-  if (hasKey) {
-    storage.get("sites", (err, data) => {
-      if (err) return console.log(err);
-      sites = data;
-      console.log("there", data, sites);
-    });
-  } else {
-    console.log("not there", sites);
-    storage.set("sites", sites, error => {
-      if (error) return console.log(error);
-    });
-  }
-});
-
+if (userSites) {
+  sites = userSites;
+} else {
+  store.set("sites", sites);
+}
 const populate = () => {
   let data = "";
+  console.log("populate");
 
   sites.map(site => {
     data += `<button
@@ -93,11 +84,13 @@ const populate = () => {
   </button>`;
   });
   const box = document.getElementById("box");
-  box.innerHTML = data;
-  const buttons = document.getElementsByClassName("btn");
-  for (let i = 0; i < buttons.length; i++) {
-    const button = buttons[i];
-    button.onclick = () => openPage(button);
+  if (box) {
+    box.innerHTML = data;
+    const buttons = document.getElementsByClassName("btn");
+    for (let i = 0; i < buttons.length; i++) {
+      const button = buttons[i];
+      button.onclick = () => openPage(button);
+    }
   }
 };
 
@@ -107,11 +100,13 @@ const openPage = url => {
 
 const alertOnlineStatus = () => {
   const bar = document.getElementById("status");
-  if (navigator.onLine) {
-    bar.innerHTML = null;
-  } else {
-    const text = "<p>You are currently offline</p>";
-    bar.innerHTML = text;
+  if (bar) {
+    if (navigator.onLine) {
+      bar.innerHTML = null;
+    } else {
+      const text = "<p>You are currently offline</p>";
+      bar.innerHTML = text;
+    }
   }
 };
 
@@ -121,16 +116,19 @@ window.addEventListener("offline", alertOnlineStatus);
 alertOnlineStatus();
 populate();
 
-const adder = () => {
-  sites.push({
-    name: "test",
-    class: "fz",
-    name: "Test"
-  });
-
-  storage.set("sites", sites, error => {
-    if (error) return console.log(error);
-  });
-
-  populate();
+const addUrl = () => {
+  ipcRenderer.send("add-url");
 };
+
+ipcRenderer.on("populate", (e, data) => {
+  console.log("came here to populate", data);
+  sites.push({
+    name: data.name,
+    class: data.color,
+    url: data.url
+  });
+  store.delete("sites");
+  store.set("sites", sites);
+  populate();
+  ipcRenderer.send("add-url");
+});

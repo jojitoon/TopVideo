@@ -1,4 +1,4 @@
-const { remote, ipcRenderer } = require("electron");
+const { ipcRenderer } = require("electron");
 
 const switchTop = () => {
   ipcRenderer.send("switch-top");
