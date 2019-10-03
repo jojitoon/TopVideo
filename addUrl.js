@@ -1,13 +1,18 @@
 const { ipcRenderer } = require("electron");
 const addpage = () => {
-  const name = document.getElementById("name").value;
-  const url = document.getElementById("url").value;
-  const color = document.getElementById("color").value;
+  let name = document.getElementById("name");
+  let url = document.getElementById("url");
+  let color = document.getElementById("color");
 
   const data = {
-    name,
-    color,
-    url
+    name: name.value,
+    class: color.value,
+    url: url.value
   };
-  ipcRenderer.send("populate", data);
+  name.value = "";
+  url.value = "";
+  ipcRenderer.send("addUrl", data);
+};
+const cancel = () => {
+  ipcRenderer.send("add-url");
 };

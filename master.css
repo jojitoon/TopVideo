@@ -25,6 +25,7 @@ body {
   border: none;
   cursor: pointer;
   transition: 0.2s;
+  text-transform: capitalize;
 }
 
 .btn:hover {
@@ -54,6 +55,30 @@ body {
 
 .btn-fz {
   background: #5f6acf;
+}
+.btn-red {
+  background: red;
+}
+.btn-blue {
+  background: blue;
+}
+.btn-purple {
+  background: purple;
+}
+.btn-orange {
+  background: orange;
+}
+.btn-gray {
+  background: gray;
+}
+.btn-yellow {
+  background: #adad05;
+}
+.btn-green {
+  background: green;
+}
+.btn-teal {
+  background: teal;
 }
 
 .btn-facebook {
@@ -161,7 +186,10 @@ h3 {
   border-radius: 5px;
 }
 
-.input button {
+.buttons {
+  display: flex;
+}
+.buttons button {
   padding: 10px 20px;
   font-size: 14px;
   background: #2782d7;
@@ -171,6 +199,26 @@ h3 {
   border: none;
   border-radius: 5px;
 }
-.input button:hover {
+.buttons button:hover {
+  background: #55a1e7;
+}
+.buttons .cancel {
+  background: #e7535a;
+}
+.buttons .cancel:hover {
+  background: #e50914;
+}
+
+.addUrl {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #2782d7;
+  color: white;
+  margin: 5px auto 20px auto;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+.addUrl:hover {
   background: #55a1e7;
 }

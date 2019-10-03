@@ -1,78 +1,80 @@
 const {
-  app,
-  BrowserWindow,
-  powerSaveBlocker,
-  remote,
-  Menu,
-  Tray,
-  nativeImage,
-  ipcMain,
-  systemPreferences,
-  autoUpdater,
-  dialog
-} = require("electron");
-const isDev = require("electron-is-dev");
-const path = require("path");
-const url = require("url");
-let win;
-let id;
-let tray;
-let modal;
-let addUrl;
-let icon = path.join(__dirname, "topl.png");
+    app,
+    BrowserWindow,
+    powerSaveBlocker,
+    remote,
+    Menu,
+    Tray,
+    nativeImage,
+    ipcMain,
+    systemPreferences,
+    autoUpdater,
+    dialog
+  } = require("electron"),
+  isDev = require("electron-is-dev"),
+  path = require("path"),
+  url = require("url"),
+  Store = require("./DataStore"),
+  store = new Store({ name: "All Sites" });
 
-if (!isDev) {
-  const server = "https://hazel.jojitoon.now.sh";
-  const feed = `${server}/update/${process.platform}/${app.getVersion()}`;
+let win,
+  id,
+  tray,
+  modal,
+  addUrl,
+  interval,
+  icon = path.join(__dirname, "topl.png");
 
-  autoUpdater.setFeedURL(feed);
-  setInterval(() => {
-    autoUpdater.checkForUpdates();
-  }, 60000);
+// if (!isDev) {
+//   const server = "https://hazel.jojitoon.now.sh";
+//   const feed = `${server}/update/${process.platform}/${app.getVersion()}`;
 
-  autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-    const dialogOpts = {
-      type: "info",
-      buttons: ["Restart", "Later"],
-      title: "Application Update",
-      message: process.platform === "win32" ? releaseNotes : releaseName,
-      detail:
-        "A new version has been downloaded. Restart the application to apply the updates."
-    };
+//   autoUpdater.setFeedURL(feed);
+//   setInterval(() => {
+//     autoUpdater.checkForUpdates();
+//   }, 60000);
 
-    dialog.showMessageBox(dialogOpts, response => {
-      if (response === 0) autoUpdater.quitAndInstall();
-    });
-  });
+//   autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+//     const dialogOpts = {
+//       type: "info",
+//       buttons: ["Restart", "Later"],
+//       title: "Application Update",
+//       message: process.platform === "win32" ? releaseNotes : releaseName,
+//       detail:
+//         "A new version has been downloaded. Restart the application to apply the updates."
+//     };
 
-  autoUpdater.on("error", message => {
-    console.error("There was a problem updating the application");
-    console.error(message);
-  });
-}
+//     dialog.showMessageBox(dialogOpts, response => {
+//       if (response === 0) autoUpdater.quitAndInstall();
+//     });
+//   });
+
+//   autoUpdater.on("error", message => {
+//     console.error("There was a problem updating the application");
+//     console.error(message);
+//   });
+// }
 
 const iconUrl = url.format({
-  pathname: path.join(__dirname, "icon.png"),
-  protocol: "file:",
-  slashes: true
-});
-
-const htmlUrl = url.format({
-  pathname: path.join(__dirname, "index.html"),
-  protocol: "file:",
-  slashes: true
-});
-
-const modalUrl = url.format({
-  pathname: path.join(__dirname, "mod.html"),
-  protocol: "file:",
-  slashes: true
-});
-const addSiteUrl = url.format({
-  pathname: path.join(__dirname, "addUrl.html"),
-  protocol: "file:",
-  slashes: true
-});
+    pathname: path.join(__dirname, "icon.png"),
+    protocol: "file:",
+    slashes: true
+  }),
+  htmlUrl = url.format({
+    pathname: path.join(__dirname, "index.html"),
+    protocol: "file:",
+    slashes: true
+  }),
+  modalUrl = url.format({
+    pathname: path.join(__dirname, "mod.html"),
+    protocol: "file:",
+    slashes: true
+  }),
+  addSiteUrl = url.format({
+    pathname: path.join(__dirname, "addUrl.html"),
+    protocol: "file:",
+    slashes: true
+  });
 
 function createModal() {
   modal = new BrowserWindow({
@@ -108,6 +110,7 @@ const showAddUrl = () => {
   addUrl.show();
   addUrl.focus();
 };
+
 const showWindow = () => {
   const trayPos = tray.getBounds();
   const windowPos = modal.getBounds();
@@ -140,15 +143,19 @@ function createWindow() {
     y: 0,
     width: 500,
     height: 300,
+    show: false,
     title: "Top Video",
     icon: iconUrl,
     webPreferences: {
       nodeIntegration: true
     }
   });
+
   addUrl = new BrowserWindow({
+    x: 0,
+    y: 0,
     width: 400,
-    height: 400,
+    height: 350,
     show: false,
     frame: false,
     resizable: false,
@@ -158,21 +165,39 @@ function createWindow() {
       nodeIntegration: true
     }
   });
+
+  win.loadURL(htmlUrl);
+
   addUrl.loadURL(addSiteUrl);
 
-  app.dock.hide();
-  win.setAlwaysOnTop(true, "floating");
-  win.setVisibleOnAllWorkspaces(true);
-  win.setFullScreenable(false);
-  app.dock.show();
   const mainMenu = Menu.buildFromTemplate(mainMenuTemp);
+
   Menu.setApplicationMenu(mainMenu);
-  win.openDevTools({ mode: "detach" });
-  addUrl.openDevTools({ mode: "detach" });
-  win.loadURL(htmlUrl);
+
+  // win.openDevTools({ mode: "detach" });
+  // addUrl.openDevTools({ mode: "detach" });
+
+  win.once("ready-to-show", () => {
+    win.show();
+    app.dock.hide();
+    win.setAlwaysOnTop(true, "floating");
+    win.setVisibleOnAllWorkspaces(true);
+    win.setFullScreenable(false);
+    app.dock.show();
+  });
+
+  win.once("show", () => {
+    win.webContents.send("populate", store.sites);
+  });
+
+  win.on("always-on-top-changed", () => {
+    // win.setFullScreen(false);
+  });
+
   win.webContents.on("new-window", function(e, url) {
     e.preventDefault();
   });
+
   win.on("closed", () => {
     win = null;
     powerSaveBlocker.stop(id);
@@ -186,18 +211,19 @@ const goFull = () => {
     win.setAlwaysOnTop(false);
     win.setVisibleOnAllWorkspaces(false);
     win.setFullScreenable(true);
-    app.dock.show();
+    // win.setFullScreen(true);
     toggleWindow();
+    app.dock.show();
     return "Top video is no longer on all your screens.";
   } else {
     app.dock.hide();
+    win.setFullScreenable(false);
+    win.setFullScreen(false);
     win.setAlwaysOnTop(true, "floating");
     win.setVisibleOnAllWorkspaces(true);
-    win.setFullScreen(false);
-    win.setFullScreenable(false);
-    win.setSize(500, 300, true);
-    app.dock.show();
+    // win.setSize(500, 300, true);
     toggleWindow();
+    app.dock.show();
     return "Top video is now on all your screens.";
   }
 };
@@ -217,31 +243,41 @@ app.on("ready", () => {
   }
   createWindow();
   createModal();
+  interval = setInterval(() => {
+    win.webContents.send("populate", store.sites);
+  }, 5000);
 });
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     powerSaveBlocker.stop(id);
+    clearInterval(interval);
     app.quit();
   }
 });
-const populateIt = data => {
-  addUrl.webContents.send("populate", data);
-};
 
 ipcMain.on("switch-top", e => {
   e.reply("notify", goFull());
 });
+
 ipcMain.on("toggle", e => {
   toggleWindow();
 });
+
 ipcMain.on("add-url", e => {
   toggleAddSite();
 });
-// ipcMain.on("addedUrl", (e, data) => {
-//   populateIt(data);
-//   toggleAddSite();
-// });
+
+ipcMain.on("addUrl", (e, data) => {
+  const updatedSites = store.addSite(data).sites;
+  win.webContents.send("populate", updatedSites);
+  toggleAddSite();
+});
+
+ipcMain.on("openPage", (e, url) => {
+  win.loadURL(url);
+});
+
 ipcMain.on("quit", e => {
   powerSaveBlocker.stop(id);
   app.quit();
